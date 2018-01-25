@@ -1,4 +1,4 @@
-package com.erhannis.photoanalysis;
+package com.zatackcoder.camera2test;
 
 import org.junit.Test;
 
