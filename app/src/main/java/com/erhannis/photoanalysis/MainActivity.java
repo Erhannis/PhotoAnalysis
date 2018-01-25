@@ -1,4 +1,4 @@
-package com.zatackcoder.camera2test;
+package com.erhannis.photoanalysis;
 
 import android.Manifest;
 import android.content.Intent;

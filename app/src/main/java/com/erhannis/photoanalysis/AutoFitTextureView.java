@@ -1,4 +1,4 @@
-package com.zatackcoder.camera2test;
+package com.erhannis.photoanalysis;
 
 import android.content.Context;
 import android.util.AttributeSet;
