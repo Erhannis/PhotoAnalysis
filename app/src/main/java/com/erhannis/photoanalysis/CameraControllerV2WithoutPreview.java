@@ -3,6 +3,8 @@ package com.erhannis.photoanalysis;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -24,6 +26,8 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.Size;
 import android.widget.Toast;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -101,6 +105,12 @@ public class CameraControllerV2WithoutPreview {
                     continue;
                 }
 
+                int[] formats = map.getOutputFormats();
+                for (int format : formats) {
+                    Size[] sizes = map.getOutputSizes(format);
+                    Log.d(TAG, "format " + format + ": " + StringUtils.joinWith(", ", sizes));
+                }
+
                 // For still image captures, we use the largest available size.
                 Size largest = Collections.max(Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)), new CompareSizesByArea());
                 imageReader = ImageReader.newInstance(largest.getWidth(), largest.getHeight(), ImageFormat.JPEG, /*maxImages*/2);
@@ -149,7 +159,13 @@ public class CameraControllerV2WithoutPreview {
         @Override
         public void onImageAvailable(ImageReader reader) {
             Log.d(TAG, "ImageAvailable");
-            backgroundHandler.post(new ImageSaver(reader.acquireNextImage(), file));
+            Image image = reader.acquireNextImage();
+            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+            byte[] bytes = new byte[buffer.capacity()];
+            buffer.get(bytes);
+            Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+            mCallback.accept(bitmapImage);
+            backgroundHandler.post(new ImageSaver(image, file));
         }
 
     };
